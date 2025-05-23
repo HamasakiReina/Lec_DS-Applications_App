@@ -1,4 +1,5 @@
   大学3年次　冬季授業 実験/研究発表 論文・プログラム<br>
+  http://gms.gdl.jp/~rh2022025/Lec_DS-Applications_App/minipj.html <br>
 ーーーーーーーーーーーーーーーーーーーーーーーーーーー<br>
 <br>
 以下、プログラム説明<br>
