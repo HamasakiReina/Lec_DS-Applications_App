@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToDoリスト</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            flex-direction: row;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .todo-container, .task-display-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin: 0 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .todo-container {
+            height: 500px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .priority-btn {
+            background-color: #e74c3c;
+            color: white;
+            padding: 15px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            width: 80px;
+            height: 45px;
+            line-height: 1;
+            transition: box-shadow 0.2s ease;
+            margin-right: 15px;
+        }
+
+        .priority-btn.active {
+            box-shadow: 0 0 15px rgba(231, 76, 60, 0.8);
+        }
+
+        input[type="text"] {
+            width: calc(100% - 130px);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin: 5px 0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #digitalClock, #date {
+            margin-bottom: 20px;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        #date {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        #taskDisplay {
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            height: 400px;
+            overflow-y: auto;
+            text-align: left;
+            position: relative;
+        }
+
+        #noTaskMessage, #allTasksCompletedMessage {
+            display: block;
+            color: #888;
+            text-align: center;
+            margin: auto;
+            font-size: 16px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: nowrap;
+        }
+
+        .task {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            position: relative;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .priority-label {
+            background-color: #e74c3c;
+            color: white;
+            padding: 3px 6px;
+            border-radius: 3px;
+            margin-right: 10px;
+            font-size: 12px;
+            white-space: nowrap;
+            font-weight: bold;
+            height: 42px;
+            display: flex;
+            align-items: center;
+        }
+
+        .task-text {
+            flex-grow: 1;
+            padding-right: 10px;
+            white-space: normal;
+        }
+
+        .task button {
+            background-color: orange;
+            border: none;
+            color: white;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+            width: auto;
+            white-space: nowrap;
+            height: 42px;
+            transition: background-color 0.3s ease;
+        }
+
+        .task button:hover {
+            background-color: #d35400;
+        }
+
+        .clock {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border: 5px solid black;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            background-color: white;
+        }
+
+        .hand {
+            position: absolute;
+            width: 50%;
+            height: 2px;
+            background-color: black;
+            top: 50%;
+            transform-origin: 100%;
+            transform: rotate(90deg);
+            transition: all 0.5s ease-in-out;
+        }
+
+        .second-hand {
+            background-color: red;
+            width: 40%;
+            left: 15px;
+            height: 1px;
+        }
+
+        .hour-hand {
+            width: 30%;
+            left: 30px;
+            transform-origin: 100%;
+        }
+
+        .center {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: black;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .numbers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .number {
+            position: absolute;
+            transform-origin: 50% 50%;
+        }
+
+        .number:nth-child(1) { transform: rotate(0deg) translateY(-65px) rotate(0deg); }
+        .number:nth-child(2) { transform: rotate(30deg) translateY(-65px) rotate(-30deg); }
+        .number:nth-child(3) { transform: rotate(60deg) translateY(-65px) rotate(-60deg); }
+        .number:nth-child(4) { transform: rotate(90deg) translateY(-65px) rotate(-90deg); }
+        .number:nth-child(5) { transform: rotate(120deg) translateY(-65px) rotate(-120deg); }
+        .number:nth-child(6) { transform: rotate(150deg) translateY(-65px) rotate(-150deg); }
+        .number:nth-child(7) { transform: rotate(180deg) translateY(-65px) rotate(-180deg); }
+        .number:nth-child(8) { transform: rotate(210deg) translateY(-65px) rotate(-210deg); }
+        .number:nth-child(9) { transform: rotate(240deg) translateY(-65px) rotate(-240deg); }
+        .number:nth-child(10) { transform: rotate(270deg) translateY(-65px) rotate(-270deg); }
+        .number:nth-child(11) { transform: rotate(300deg) translateY(-65px) rotate(-300deg); }
+        .number:nth-child(12) { transform: rotate(330deg) translateY(-65px) rotate(-330deg); }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .message-window {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: none;
+            text-align: center;
+        }
+
+        .message-window button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        /* スマホ表示時のみレイアウト修正 */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .todo-container, .task-display-container {
+                width: 90%;
+                margin: 10px 0;
+                padding: 15px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .priority-btn {
+                width: 100%; /* ボタンを横いっぱいに */
+                margin-right: 0;
+                margin-bottom: 10px; /* ボタンとテキスト入力欄の間隔 */
+            }
+
+            input[type="text"] {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            button {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            #digitalClock, #date {
+                font-size: 24px;
+            }
+
+            #taskDisplay {
+                height: 300px; /* スマホ表示時は高さを減らす */
+            }
+
+            .task button {
+                height: 40px; /* ボタンの高さを少し減らす */
+                font-size: 14px;
+            }
+
+            .task {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="todo-container">
+    <h1>ToDoリスト</h1>
+
+    <div id="date"></div>
+    <div id="digitalClock">00:00:00</div>
+
+    <div class="clock">
+        <div class="hand hour-hand"></div>
+        <div class="hand minute-hand"></div>
+        <div class="hand second-hand"></div>
+        <div class="center"></div>
+        <div class="numbers">
+            <div class="number">12</div>
+            <div class="number">1</div>
+            <div class="number">2</div>
+            <div class="number">3</div>
+            <div class="number">4</div>
+            <div class="number">5</div>
+            <div class="number">6</div>
+            <div class="number">7</div>
+            <div class="number">8</div>
+            <div class="number">9</div>
+            <div class="number">10</div>
+            <div class="number">11</div>
+        </div>
+    </div>
+
+    <div class="input-group">
+        <button id="priorityBtn" class="priority-btn" onclick="togglePriority()">すぐやる</button>
+        <input type="text" id="taskInput" placeholder="今日やるべきことは？...">
+    </div>
+
+    <button onclick="addTask()">タスクを追加</button>
+</div>
+
+<div class="task-display-container">
+    <h2 style="font-size: 28px;">今日のやること</h2>
+    <div id="taskDisplay">
+        <span id="noTaskMessage">タスクが登録されていません</span>
+        <span id="allTasksCompletedMessage" style="display:none;">タスクは全て終わりました</span>
+    </div>
+</div>
+
+<div class="message-window" id="messageWindow">
+    <p id="previousMessage"></p>
+    <button onclick="closeMessageWindow()">わかった</button>
+</div>
+
+<script>
+    let hasTaskEverAdded = false;
+    let completedTasks = 0;
+    let isPriority = false;
+
+    window.onload = function() {
+        const savedTasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        const previousCompletedTasks = localStorage.getItem('completedTasks') || 0;
+        const messageWindow = document.getElementById('messageWindow');
+        const previousMessage = document.getElementById('previousMessage');
+        const overlay = document.getElementById('overlay');
+
+        if (savedTasks.length > 0) {
+            savedTasks.forEach(task => {
+                addTaskToDisplay(task.text, task.isPriority);
+            });
+            document.getElementById('noTaskMessage').style.display = 'none';
+        } else {
+            document.getElementById('noTaskMessage').style.display = 'block';
+        }
+
+        if (previousCompletedTasks > 0) {
+            previousMessage.textContent = `前回は ${previousCompletedTasks} 件のタスクを終わらせました！引き続き頑張りましょう`;
+            messageWindow.style.display = 'block';
+            overlay.style.display = 'block';
+        }
+    };
+
+    function togglePriority() {
+        const priorityBtn = document.getElementById('priorityBtn');
+        isPriority = !isPriority;
+        if (isPriority) {
+            priorityBtn.classList.add('active');
+        } else {
+            priorityBtn.classList.remove('active');
+        }
+    }
+
+    function updateDigitalClock() {
+        const clockElement = document.getElementById('digitalClock');
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        clockElement.textContent = hours + ':' + minutes + ':' + seconds;
+    }
+
+    function updateDate() {
+        const dateElement = document.getElementById('date');
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        dateElement.textContent = now.toLocaleDateString('ja-JP', options);
+    }
+
+    function updateAnalogClock() {
+        const now = new Date();
+        const secondHand = document.querySelector('.second-hand');
+        const minuteHand = document.querySelector('.minute-hand');
+        const hourHand = document.querySelector('.hour-hand');
+
+        const seconds = now.getSeconds();
+        const minutes = now.getMinutes();
+        const hours = now.getHours();
+
+        const secondDegrees = ((seconds / 60) * 360) + 90;
+        const minuteDegrees = ((minutes / 60) * 360) + 90;
+        const hourDegrees = ((hours % 12) / 12 * 360) + ((minutes / 60) * 30) + 90;
+
+        secondHand.style.transform = `rotate(${secondDegrees}deg)`;
+        minuteHand.style.transform = `rotate(${minuteDegrees}deg)`;
+        hourHand.style.transform = `rotate(${hourDegrees}deg)`;
+    }
+
+    setInterval(updateDigitalClock, 1000);
+    setInterval(updateAnalogClock, 1000);
+    updateDate();
+
+    function addTask() {
+        const taskInput = document.getElementById('taskInput');
+        const taskDisplay = document.getElementById('taskDisplay');
+        const noTaskMessage = document.getElementById('noTaskMessage');
+        const allTasksCompletedMessage = document.getElementById('allTasksCompletedMessage');
+
+        if (taskInput.value.trim() !== "") {
+            const taskText = taskInput.value;
+            addTaskToDisplay(taskText, isPriority);
+            saveTaskToLocalStorage(taskText, isPriority);
+            taskInput.value = "";
+            noTaskMessage.style.display = 'none';
+            allTasksCompletedMessage.style.display = 'none';
+            hasTaskEverAdded = true;
+        }
+    }
+
+    function addTaskToDisplay(taskText, priority) {
+        const taskDisplay = document.getElementById('taskDisplay');
+        const taskElement = document.createElement('div');
+        taskElement.classList.add('task');
+        taskElement.innerHTML = `
+            ${priority ? '<span class="priority-label">すぐやる</span>' : ''}
+            <span class="task-text">${taskText}</span>
+            <button onclick="removeTask(this)">できた</button>
+        `;
+
+        if (priority) {
+            taskDisplay.insertBefore(taskElement, taskDisplay.firstChild);
+        } else {
+            taskDisplay.appendChild(taskElement);
+        }
+    }
+
+    function removeTask(button) {
+        const taskDisplay = document.getElementById('taskDisplay');
+        const task = button.parentElement;
+        task.remove();
+        completedTasks++;
+
+        const remainingTasks = taskDisplay.querySelectorAll('.task');
+        const noTaskMessage = document.getElementById('noTaskMessage');
+        const allTasksCompletedMessage = document.getElementById('allTasksCompletedMessage');
+
+        if (remainingTasks.length === 0) {
+            allTasksCompletedMessage.style.display = 'block';
+        }
+
+        saveTasksToLocalStorage();
+        localStorage.setItem('completedTasks', completedTasks);
+    }
+
+    function saveTaskToLocalStorage(taskText, priority) {
+        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        tasks.push({ text: taskText, isPriority: priority });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function saveTasksToLocalStorage() {
+        const tasks = [];
+        document.querySelectorAll('#taskDisplay .task').forEach(task => {
+            const taskText = task.querySelector('.task-text').textContent;
+            const isPriority = !!task.querySelector('.priority-label');
+            tasks.push({ text: taskText, isPriority });
+        });
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function closeMessageWindow() {
+        const messageWindow = document.getElementById('messageWindow');
+        const overlay = document.getElementById('overlay');
+        messageWindow.style.display = 'none';
+        overlay.style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
